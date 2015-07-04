@@ -11,17 +11,49 @@
       <button id="player" class="player">Play</button>
     </div>
   </div>
-  <script src="../../public/javascripts/jquery-1.9.0.min.js"
-   type="text/javascript"></script>
-  <script src="../../public/javascripts/audio-helper.js"
-   type="text/javascript"></script>
+  <script src='@routes.Assets.at("javascripts/audio-helper.js")' type="text/javascript"></script>
   <script type="text/javascript">
-    $('#recorder').on('click', function(e) {
-      alert('aaa');
-    });
-    $('#player').on('click',function(e) {
-      alert('bbb');
-    });
+    /*
+     * 
+     */
+    var onClickRecord = function(e) {
+      window.audioBufferArray = [];
 
+      navigator.getUserMedia(
+        { video: false, audio: true },
+        function(stream) {
+          var mediaStreamSource = window.audioContext.createMediaStreamSource(stream);
+          var scriptProcessor = window.audioContext.createScriptProcessor(BUFFERSIZE, 1, 1);
+
+          mediaStreamSource.connect(scriptProcessor);
+          scriptProcessor.connect(window.audioContext.destination);
+
+          // record
+          scriptProcessor.onaudioprocess = window.onAudioProcess;
+
+          // stop after setting millisec
+          setTimeout(function() {
+            stream.stop();
+
+          }, RECORDABLE_MILLISECOND);
+        },
+        function (error) {
+          console.log(error.name ? error.name : error);
+        }
+      );
+    };
+
+    /*
+     * 
+     */
+    var onClickPlayer = function(e) {
+      var src = window.audioContext.createBufferSource();
+      src.buffer = getAudioBuffer(window.audioBufferArray, BUFFERSIZE);
+      src.connect(audioContext.destination);
+      src.start();
+    };
+
+    $('#recorder').on('click', onClickRecord);
+    $('#player').on('click', onClickPlayer);
   </script>
 }

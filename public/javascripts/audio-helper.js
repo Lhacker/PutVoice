@@ -3,7 +3,7 @@ window.URL = window.URL || window.webkitURL;
 var audioContext;
 var BUFFERSIZE = 4096;
 var RECORDABLE_MILLISECOND = 5000;
-var link = document.getElementById('content').querySelector('.link');
+var audioBufferArray = [];
 
 (function initWebAudio() {
   try {
@@ -16,60 +16,9 @@ var link = document.getElementById('content').querySelector('.link');
 })();
 navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
-navigator.getUserMedia(
-  { video: false, audio: true },
-  function(stream) {
-    var mediaStreamSource = window.audioContext.createMediaStreamSource(stream);
-    var scriptProcessor = window.audioContext.createScriptProcessor(BUFFERSIZE, 1, 1);
-    var audioBufferArray = [];
-
-    mediaStreamSource.connect(scriptProcessor);
-    scriptProcessor.connect(window.audioContext.destination);
-
-    scriptProcessor.onaudioprocess = function(event) {
-      var channel = event.inputBuffer.getChannelData(0);
-      var buffer = new Float32Array(BUFFERSIZE);
-      for (var i = 0; i < BUFFERSIZE; i++) {
-        buffer[i] = channel[i];
-      }
-      audioBufferArray.push(buffer);
-    };
-
-    setTimeout(function() {
-      stream.stop();
-      var src = window.audioContext.createBufferSource();
-      src.buffer = getAudioBuffer(audioBufferArray, BUFFERSIZE);
-      src.connect(audioContext.destination);
-      src.start();
-
-      var blob = exportWAV(audioBufferArray, audioContext.sampleRate)
-      var url = URL.createObjectURL(blob);
-      link.href = url;
-      link.download = 'output.wav';
-      link.textContent = 'download';
-    }, RECORDABLE_MILLISECOND);
-  },
-  function (error) {
-    console.log(error.name ? error.name : error);
-  }
-);
-
-var getAudioBuffer = function(audioBufferArray, bufferSize) {
-  var o = this;
-  var buffer = audioContext.createBuffer(
-    1,
-    audioBufferArray.length * bufferSize,
-    audioContext.sampleRate
-  );
-  var channel = buffer.getChannelData(0);
-  for (var i = 0; i < audioBufferArray.length; i++) {
-    for (var j = 0; j < bufferSize; j++) {
-      channel[i * bufferSize + j] = audioBufferArray[i][j];
-    }
-  }
-  return buffer;
-};
-
+/*
+ * export audio data as .wav file
+ */
 var exportWAV = function(audioData, sampleRate) {
   var encodeWAV = function(samples, sampleRate) {
     var buffer = new ArrayBuffer(44 + samples.length * 2);
@@ -121,3 +70,28 @@ var exportWAV = function(audioData, sampleRate) {
   return audioBlob;
 };
 
+/*
+ * get audio data as buffer array data
+ */
+var getAudioBuffer = function(audioBufferArray, bufferSize) {
+  var buffer = audioContext.createBuffer(
+    1,
+    audioBufferArray.length * bufferSize,
+    audioContext.sampleRate
+  );
+  var channel = buffer.getChannelData(0);
+  for (var i = 0; i < audioBufferArray.length; i++) {
+    for (var j = 0; j < bufferSize; j++) {
+      channel[i * bufferSize + j] = audioBufferArray[i][j];
+    }
+  }
+  return buffer;
+};
+var onAudioProcess = function(event) {
+  var channel = event.inputBuffer.getChannelData(0);
+  var buffer = new Float32Array(BUFFERSIZE);
+  for (var i = 0; i < BUFFERSIZE; i++) {
+    buffer[i] = channel[i];
+  }
+  window.audioBufferArray.push(buffer);
+};
