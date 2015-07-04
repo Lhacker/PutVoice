@@ -1,0 +1,32 @@
+.content {
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+.record, .play, .put {
+  margin-top: 2%;
+  margin-bottom: 2%;
+}
+
+.button-recorder,
+.button-player,
+.button-putting-voice {
+  color: white;
+  border-radius: 4px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.button-recorder {
+  background: rgb(28, 28, 65);
+}
+
+.button-player {
+  background: rgb(28, 184, 65);
+}
+
+.button-warning {
+}
+
+.button-putting-voice {
+  background: rgb(66, 184, 221);
+}
