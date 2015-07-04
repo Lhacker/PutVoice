@@ -11,9 +11,17 @@
       <button id="player" class="player">Play</button>
     </div>
   </div>
-  <script src='@routes.Assets.at("javascripts/audio-helper.js")' type="text/javascript"></script>
+  <script src="../../public/javascripts/jquery-1.9.0.min.js"
+   type="text/javascript"></script>
+  <script src="../../public/javascripts/audio-helper.js"
+   type="text/javascript"></script>
   <script type="text/javascript">
-    //
-  </script>
+    $('#recorder').on('click', function(e) {
+      alert('aaa');
+    });
+    $('#player').on('click',function(e) {
+      alert('bbb');
+    });
 
+  </script>
 }
