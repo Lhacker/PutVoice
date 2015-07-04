@@ -6,17 +6,23 @@
     <div id="content">
       <h1>hello</h1>
       <audio class="audio">your browser can't use audio tag</audio>
-      <a class="link"></a>
-      <button id="recorder" class="recorder">Put your voice</button>
-      <button id="player" class="player">Play</button>
+      <div class="record">
+        <button id="record_start" class="recorder">Start to Record</button>
+        <button id="record_stop" class="recorder">Stop to Record</button>
+      </div>
+      <div class="play">
+        <button id="player" class="player">Play</button>
+      </div>
     </div>
   </div>
   <script src='@routes.Assets.at("javascripts/audio-helper.js")' type="text/javascript"></script>
   <script type="text/javascript">
+    var observerOfRecorder = null;
+
     /*
      * 
      */
-    var onClickRecord = function(e) {
+    var onClickRecordStart = function(e) {
       window.audioBufferArray = [];
 
       navigator.getUserMedia(
@@ -31,16 +37,24 @@
           // record
           scriptProcessor.onaudioprocess = window.onAudioProcess;
 
-          // stop after setting millisec
-          setTimeout(function() {
-            stream.stop();
-
-          }, RECORDABLE_MILLISECOND);
+          // stop after clicked stop button
+          window.observerOfRecorder = new Object();
+          var timer = window.setInterval(function() {
+            console.log('interval');
+            if (window.observerOfRecorder == null) {
+              stream.stop();
+              window.clearInterval(timer);
+            }
+          }, 1000);
         },
         function (error) {
           console.log(error.name ? error.name : error);
         }
       );
+    };
+
+    var onClickRecordStop = function(e) {
+      window.observerOfRecorder = null;
     };
 
     /*
@@ -53,7 +67,8 @@
       src.start();
     };
 
-    $('#recorder').on('click', onClickRecord);
+    $('#record_start').on('click', onClickRecordStart);
+    $('#record_stop').on('click', onClickRecordStop);
     $('#player').on('click', onClickPlayer);
   </script>
 }
