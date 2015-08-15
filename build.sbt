@@ -3,9 +3,9 @@ name := "PutVoice"
 version := "1.0-SNAPSHOT"
 
 libraryDependencies ++= Seq(
-  javaJdbc,
-  javaEbean,
+  jdbc,
+  anorm,
   cache
 )     
 
-play.Project.playJavaSettings
+play.Project.playScalaSettings
